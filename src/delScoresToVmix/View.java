@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -26,9 +27,9 @@ public class View extends JFrame{
 	private final JLabel vmixIpLabel = new JLabel("VMix IP:");
 	private final JLabel vmixPortLabel = new JLabel("VMix Port:");
 	private final JButton fetchDataBtn = new JButton("Daten abrufen");
+	private final JButton sendDataBtn = new JButton("Daten senden");
 	
 	private final int matchAmount = 7;
-	private final String[] inputs = new String[] {"null", "1.1", "1.2", "2.1", "2.2"};
 	
 	private JTextArea[] matchComponents = new JTextArea[matchAmount];
 	private JComboBox[] inputComponents = new JComboBox[matchAmount];
@@ -39,6 +40,9 @@ public class View extends JFrame{
 		initMainWindow();
 		initComponents();
 		initLayout(getContentPane());
+		
+		// Initialize active Inputs
+		model.updateActiveInputs(getInputs());
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -52,8 +56,8 @@ public class View extends JFrame{
 	}
 	
 	private void initComponents() {
-		vmixIp.setText("127.0.0.1");
-		vmixPort.setText("8088");
+		vmixIp.setText(model.vmixIP);
+		vmixPort.setText(model.vmixPort);
 		
 		for(int i = 0; i < matchComponents.length; ++i) {
 			JTextArea cmp = new JTextArea();
@@ -65,7 +69,7 @@ public class View extends JFrame{
 		}
 		
 		for(int i = 0; i < inputComponents.length; ++i) {
-			inputComponents[i] = new JComboBox<String>(inputs);
+			inputComponents[i] = new JComboBox<String>(model.getInputs());
 		}
 	}
 	
@@ -80,6 +84,7 @@ public class View extends JFrame{
 		settings.add(vmixPortLabel);
 		settings.add(vmixPort);
 		settings.add(fetchDataBtn);
+		settings.add(sendDataBtn);
 		
 		JPanel matches = new JPanel();
 		matches.setBorder(BorderFactory.createTitledBorder("Matches"));
@@ -99,9 +104,39 @@ public class View extends JFrame{
         fetchDataBtn.addActionListener(al);
     }
 	
+	public void addDataSendListener(ActionListener al) {
+        sendDataBtn.addActionListener(al);
+    }
+	
+	public void addInputChangeListener(ActionListener al) {
+		for(JComboBox<String> input : inputComponents ) {
+			input.addActionListener(al);
+		}
+    }
+	
+	public void addSettingsChangedListener(ActionListener al) {
+        vmixIp.addActionListener(al);
+        vmixPort.addActionListener(al);
+    }
+	
 	public void updateMatchInfo(List<String> matches) {
 		for(int i = 0; i < matchComponents.length; ++i) {
 			matchComponents[i].setText(matches.get(i));
 		}
+	}
+	
+	public List<String> getInputs() {
+		List<String> result = new ArrayList<String>();
+		
+		for(JComboBox<String> input : inputComponents) {
+			result.add(input.getSelectedItem().toString());
+		}
+		
+		return result;
+	}
+	
+	public void syncSettings() {
+		model.vmixIP = vmixIp.getText();
+		model.vmixPort = vmixPort.getText();
 	}
 }
