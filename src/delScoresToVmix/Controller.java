@@ -5,27 +5,36 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import flashscoreScraper.MatchInfo;
 
 public class Controller {
 	private Model model;
 	private View view;
+	private BackgroundWorker worker;
 	
-	public Controller(Model model, View view) {
-		this.model = model;
-		this.view = view;
-		
-		connectListeners();
+	public static void main(String[] args) {
+        Controller controller = new Controller();
+    }
+	
+	public Controller() {
+		model = new Model();
+        view = new View();
+
+        initView();
+        connectListeners();
+        
+        view.setVisible(true);
+	}
+	
+	private void initView() {
+		view.setVmixIp("127.0.0.1");
+        view.setVmixPort("8088");
 	}
 	
 	private void connectListeners() {
 		view.addDataFetchListener(new DataFetchListener());
 		view.addDataSendListener(new DataSendListener());
-		view.addSettingsChangedListener(new SettingsChangedListener());
-		view.addInputChangeListener(new InputChangeListener());
+		view.addAutoUpdateChangedListener(new AutoUpdateChangedListener());
 		view.addWindowListener(new java.awt.event.WindowAdapter() {
 	        public void windowClosing(WindowEvent winEvt) {
 	            model.shutdown();
@@ -33,12 +42,19 @@ public class Controller {
 	    });
 	}
 	
-	public void sendDataToVmix() throws IOException {
-		String url = "http://" + model.vmixIP + ":" + model.vmixPort + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
-		for(int i = 0; i < model.getUpcomingMatches().size(); ++i) {
-			url = String.format(url, model.getActiveInputs().get(i), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
-			send(url);
+	public void sendData() throws IOException {
+		String url = "http://" + view.getVmixIp() + ":" + view.getVmixPort() + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
+		for(int i = 0; i < 7; ++i) {
+			url = String.format(url, view.getActiveInput(i), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
+			//send(url);
 		}
+		view.writeLogMessage("Daten gesendet");
+	}
+	
+	public void getData() {
+		model.fetchUpcomingMatches();
+        view.updateMatchInfo(model.getUpcomingMatchesAsString());
+        view.writeLogMessage("Daten abgerufen");
 	}
 	
 	private void send(String url) throws IOException {
@@ -46,20 +62,30 @@ public class Controller {
 		HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
 	}
 	
+	public void toggleBackgroundWorker(boolean enable) {
+		if (enable) {
+			view.writeLogMessage("Automatischer Upload aktiviert");
+			worker = new BackgroundWorker(this, view);
+			worker.start();
+		} else {
+			view.writeLogMessage("Automatischer Upload deaktiviert");
+			worker.interrupt();
+		}
+	}
+	
 	/**
 	 * Listener for Fetch data button
 	 */
 	class DataFetchListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-        	model.fetchUpcomingMatches();
-            view.updateMatchInfo(model.getUpcomingMatchesAsString());
+        	getData();
         }
     }
 	
 	class DataSendListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
         	try {
-				sendDataToVmix();
+				sendData();
 			} catch (IOException e1) {
 				// Nothing to do
 				// Maybe inform gui?
@@ -67,15 +93,9 @@ public class Controller {
         }
     }
 	
-	class SettingsChangedListener implements ActionListener {
+	class AutoUpdateChangedListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-        	view.syncSettings();
-        }
-    }
-	
-	class InputChangeListener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            model.updateActiveInputs(view.getInputs());
+        	toggleBackgroundWorker(view.isAutoUpdateEnabled());
         }
     }
 }

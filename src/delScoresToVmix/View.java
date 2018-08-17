@@ -3,73 +3,70 @@ package delScoresToVmix;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
+import javax.swing.text.DefaultCaret;
 
 public class View extends JFrame{
-	private Model model;
-	
 	private JTextField vmixIp = new JTextField();
 	private JTextField vmixPort = new JTextField();
 	private final JLabel vmixIpLabel = new JLabel("VMix IP:");
 	private final JLabel vmixPortLabel = new JLabel("VMix Port:");
 	private final JButton fetchDataBtn = new JButton("Daten abrufen");
 	private final JButton sendDataBtn = new JButton("Daten senden");
+	private JCheckBox autoUpdate = new JCheckBox("Auto Update");
 	
-	private final int matchAmount = 7;
+	private JTextArea[] matchComponents = new JTextArea[7];
+	private JComboBox[] inputComponents = new JComboBox[7];
+	private final String[] inputValues = {"null", "1.1", "1.2", "2.1", "2.2"};
 	
-	private JTextArea[] matchComponents = new JTextArea[matchAmount];
-	private JComboBox[] inputComponents = new JComboBox[matchAmount];
+	private JTextArea logView = new JTextArea(5, 50);
 	
-	public View(Model model) {
-		this.model = model;
-		
+	public View() {
 		initMainWindow();
 		initComponents();
 		initLayout(getContentPane());
-		
-		// Initialize active Inputs
-		model.updateActiveInputs(getInputs());
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	private void initMainWindow() {
 		setTitle("Del Scores to VMix");
-	    setSize(1000, 300);
-	    //setResizable(false);
-	    setLocation(50, 50);
+	    setSize(1000, 450);
+	    setResizable(false);
 	    setVisible(true);
 	}
 	
 	private void initComponents() {
-		vmixIp.setText(model.vmixIP);
-		vmixPort.setText(model.vmixPort);
+		logView.setEditable(false);
+		DefaultCaret caret = (DefaultCaret)logView.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		
 		for(int i = 0; i < matchComponents.length; ++i) {
-			JTextArea cmp = new JTextArea();
+			matchComponents[i] = new JTextArea();
+			matchComponents[i].setEditable(false);
+			
 			Border border = BorderFactory.createLineBorder(Color.BLACK);
-			cmp.setBorder(BorderFactory.createCompoundBorder(border,
-		            BorderFactory.createEmptyBorder(1, 1, 1, 1)));
-			cmp.setEditable(false);
-			matchComponents[i] = cmp;
+			matchComponents[i].setBorder(BorderFactory.createCompoundBorder(border, BorderFactory.createEmptyBorder(1, 1, 1, 1)));
 		}
 		
 		for(int i = 0; i < inputComponents.length; ++i) {
-			inputComponents[i] = new JComboBox<String>(model.getInputs());
+			inputComponents[i] = new JComboBox<String>(inputValues);
 		}
 	}
 	
@@ -85,19 +82,27 @@ public class View extends JFrame{
 		settings.add(vmixPort);
 		settings.add(fetchDataBtn);
 		settings.add(sendDataBtn);
+		settings.add(autoUpdate);
 		
 		JPanel matches = new JPanel();
 		matches.setBorder(BorderFactory.createTitledBorder("Matches"));
 		GridLayout matchLayout = new GridLayout(0, 2);
 		matches.setLayout(matchLayout);
 		
-		for(int i = 0; i < matchAmount; ++i) {
+		for(int i = 0; i < 7; ++i) {
 			matches.add(matchComponents[i]);
 			matches.add(inputComponents[i]);
 		}
 		
+		JPanel logPanel = new JPanel();
+		logPanel.setLayout(new BorderLayout());
+		logPanel.setBorder(BorderFactory.createTitledBorder("Log"));
+		JScrollPane scrollArea = new JScrollPane(logView);
+		logPanel.add(scrollArea);
+		
 		pane.add(settings, BorderLayout.NORTH);
 		pane.add(matches, BorderLayout.CENTER);
+		pane.add(logPanel, BorderLayout.SOUTH);
 	}
 	
 	public void addDataFetchListener(ActionListener al) {
@@ -108,15 +113,13 @@ public class View extends JFrame{
         sendDataBtn.addActionListener(al);
     }
 	
-	public void addInputChangeListener(ActionListener al) {
-		for(JComboBox<String> input : inputComponents ) {
-			input.addActionListener(al);
-		}
-    }
-	
 	public void addSettingsChangedListener(ActionListener al) {
         vmixIp.addActionListener(al);
         vmixPort.addActionListener(al);
+    }
+	
+	public void addAutoUpdateChangedListener(ActionListener al) {
+        autoUpdate.addActionListener(al);
     }
 	
 	public void updateMatchInfo(List<String> matches) {
@@ -124,19 +127,37 @@ public class View extends JFrame{
 			matchComponents[i].setText(matches.get(i));
 		}
 	}
-	
-	public List<String> getInputs() {
-		List<String> result = new ArrayList<String>();
-		
-		for(JComboBox<String> input : inputComponents) {
-			result.add(input.getSelectedItem().toString());
-		}
-		
-		return result;
+
+	public boolean isAutoUpdateEnabled() {
+		return autoUpdate.isSelected();
 	}
 	
-	public void syncSettings() {
-		model.vmixIP = vmixIp.getText();
-		model.vmixPort = vmixPort.getText();
+	public void setVmixIp(String text) {
+		vmixIp.setText(text);;
+	}
+	
+	public void setVmixPort(String text) {
+		vmixPort.setText(text);
+	}
+	
+	public String getVmixIp() {
+		return vmixIp.getText();
+	}
+	
+	public String getVmixPort() {
+		return vmixPort.getText();
+	}
+	
+	public String getActiveInput(int index) {
+		if(index < inputComponents.length) {
+			return inputComponents[index].getSelectedItem().toString();
+		}
+		
+		return "null";
+	}
+	
+	public void writeLogMessage(String msg) {
+		String timeStamp = new SimpleDateFormat("[HH:mm:ss]").format(Calendar.getInstance().getTime());
+		logView.append("\n" + timeStamp + " " + msg);
 	}
 }
