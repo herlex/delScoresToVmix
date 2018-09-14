@@ -33,7 +33,7 @@ public class View extends JFrame{
 	
 	private JTextArea[] matchComponents = new JTextArea[7];
 	private JComboBox[] inputComponents = new JComboBox[7];
-	private final String[] inputValues = {"null", "1.1", "1.2", "2.1", "2.2"};
+	private final String[] inputValues = {"null", "1.1", "1.2", "2.1", "2.2", "3.1", "3.2"};
 	
 	private JTextArea logView = new JTextArea(5, 50);
 	

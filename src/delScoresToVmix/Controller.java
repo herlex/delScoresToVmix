@@ -45,8 +45,10 @@ public class Controller {
 	public void sendData() throws IOException {
 		String url = "http://" + view.getVmixIp() + ":" + view.getVmixPort() + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
 		for(int i = 0; i < 7; ++i) {
-			url = String.format(url, view.getActiveInput(i), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
-			//send(url);
+			if(view.getActiveInput(i) != "null") {
+				url = String.format(url, view.getActiveInput(i), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
+				send(url);
+			}
 		}
 		view.writeLogMessage("Daten gesendet");
 	}
