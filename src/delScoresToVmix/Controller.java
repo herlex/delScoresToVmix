@@ -3,6 +3,7 @@ package delScoresToVmix;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,7 +19,7 @@ public class Controller {
 	
 	public Controller() {
 		model = new Model();
-        view = new View();
+        view = new View( model );
 
         initView();
         connectListeners();
@@ -43,14 +44,33 @@ public class Controller {
 	}
 	
 	public void sendData() throws IOException {
-		String url = "http://" + view.getVmixIp() + ":" + view.getVmixPort() + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
-		for(int i = 0; i < 7; ++i) {
-			if(view.getActiveInput(i) != "null") {
-				url = String.format(url, view.getActiveInput(i), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
-				send(url);
+		if(!model.getUpcomingMatches().isEmpty()) {
+			String url = "http://" + view.getVmixIp() + ":" + view.getVmixPort() + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
+			for(int i = 0; i < 7; ++i) {
+				String inputKey = view.getActiveInputKey(i);
+				//if(inputKey != "null") {
+					url = String.format(url, model.getInput(inputKey), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamHome);
+					send(url);
+					
+					url = String.format(url, model.getInput(inputKey), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).teamAway);
+					send(url);
+					
+					url = String.format(url, model.getInput(inputKey), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).scoreHome);
+					send(url);
+					
+					url = String.format(url, model.getInput(inputKey), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).scoreAway);
+					send(url);
+					
+					url = String.format(url, model.getInput(inputKey), "INPUTTEXTNAME", model.getUpcomingMatches().get(i).liveTime);
+					send(url);
+				//}
 			}
+			view.writeLogMessage("Daten gesendet");
 		}
-		view.writeLogMessage("Daten gesendet");
+		else
+		{
+			view.writeLogMessage("Keine Daten verfuegbar");
+		}
 	}
 	
 	public void getData() {
@@ -62,6 +82,10 @@ public class Controller {
 	private void send(String url) throws IOException {
 		URL vmixURL = new URL(url);
 		HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
+		vmixCon.setRequestMethod("GET");
+		vmixCon.connect();
+
+		int code = vmixCon.getResponseCode();
 	}
 	
 	public void toggleBackgroundWorker(boolean enable) {
@@ -89,8 +113,7 @@ public class Controller {
         	try {
 				sendData();
 			} catch (IOException e1) {
-				// Nothing to do
-				// Maybe inform gui?
+				view.writeLogMessage("Daten konnten nicht gesendet werden");
 			}
         }
     }
