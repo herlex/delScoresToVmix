@@ -17,27 +17,35 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
 public class View extends JFrame{
-	private JTextField vmixIp = new JTextField();
-	private JTextField vmixPort = new JTextField();
-	private final JLabel vmixIpLabel = new JLabel("VMix IP:");
-	private final JLabel vmixPortLabel = new JLabel("VMix Port:");
-	private final JButton fetchDataBtn = new JButton("Daten abrufen");
-	private final JButton sendDataBtn = new JButton("Daten senden");
-	private JCheckBox autoUpdate = new JCheckBox("Auto Update");
+	private Model model;
+	
+	private JTextField vmixIp 							= new JTextField();
+	private JTextField vmixPort 						= new JTextField();
+	private JSpinner vmixAutoUpdateInterval				= new JSpinner();
+	private final JLabel vmixIpLabel 					= new JLabel("VMix IP:");
+	private final JLabel vmixPortLabel 					= new JLabel("VMix Port:");
+	private final JLabel vmixAutoUpdateIntervalLabel 	= new JLabel("AutoUpdate Interval (sec):");
+	private final JButton fetchDataBtn 					= new JButton("Daten abrufen");
+	private final JButton sendDataBtn 					= new JButton("Daten senden");
+	private JCheckBox autoUpdate						= new JCheckBox("Auto Update");
 	
 	private JTextArea[] matchComponents = new JTextArea[7];
 	private JComboBox[] inputComponents = new JComboBox[7];
-	private final String[] inputValues = {"null", "1.1", "1.2", "2.1", "2.2", "3.1", "3.2"};
 	
 	private JTextArea logView = new JTextArea(5, 50);
 	
-	public View() {
+	public View(Model model) {
+		this.model = model;
+		
 		initMainWindow();
 		initComponents();
 		initLayout(getContentPane());
@@ -47,7 +55,7 @@ public class View extends JFrame{
 	
 	private void initMainWindow() {
 		setTitle("Del Scores to VMix");
-	    setSize(1000, 450);
+	    setSize(1000, 500);
 	    setResizable(false);
 	    setVisible(true);
 	}
@@ -56,6 +64,11 @@ public class View extends JFrame{
 		logView.setEditable(false);
 		DefaultCaret caret = (DefaultCaret)logView.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
+		SpinnerModel autoUpdateModel = new SpinnerNumberModel(10, 0, 100, 1);
+		vmixAutoUpdateInterval.setModel(autoUpdateModel);
+		JSpinner.DefaultEditor spinnerEditor = (JSpinner.DefaultEditor)vmixAutoUpdateInterval.getEditor();
+		spinnerEditor.getTextField().setHorizontalAlignment(JTextField.LEFT);
 		
 		for(int i = 0; i < matchComponents.length; ++i) {
 			matchComponents[i] = new JTextArea();
@@ -66,7 +79,7 @@ public class View extends JFrame{
 		}
 		
 		for(int i = 0; i < inputComponents.length; ++i) {
-			inputComponents[i] = new JComboBox<String>(inputValues);
+			inputComponents[i] = new JComboBox<String>(model.getInputKeys());
 		}
 	}
 	
@@ -80,6 +93,8 @@ public class View extends JFrame{
 		settings.add(vmixIp);
 		settings.add(vmixPortLabel);
 		settings.add(vmixPort);
+		settings.add(vmixAutoUpdateIntervalLabel);
+		settings.add(vmixAutoUpdateInterval);
 		settings.add(fetchDataBtn);
 		settings.add(sendDataBtn);
 		settings.add(autoUpdate);
@@ -140,6 +155,10 @@ public class View extends JFrame{
 		vmixPort.setText(text);
 	}
 	
+	public void setAutoUpdateInterval(int interval) {
+		vmixAutoUpdateInterval.setValue(interval);
+	}
+	
 	public String getVmixIp() {
 		return vmixIp.getText();
 	}
@@ -148,7 +167,11 @@ public class View extends JFrame{
 		return vmixPort.getText();
 	}
 	
-	public String getActiveInput(int index) {
+	public int getAutoUpdateInterval() {
+		return (int) vmixAutoUpdateInterval.getValue();
+	}
+	
+	public String getActiveInputKey(int index) {
 		if(index < inputComponents.length) {
 			return inputComponents[index].getSelectedItem().toString();
 		}
@@ -159,5 +182,17 @@ public class View extends JFrame{
 	public void writeLogMessage(String msg) {
 		String timeStamp = new SimpleDateFormat("[HH:mm:ss]").format(Calendar.getInstance().getTime());
 		logView.append("\n" + timeStamp + " " + msg);
+	}
+	
+	public void disableControls() {
+		sendDataBtn.setEnabled(false);
+		fetchDataBtn.setEnabled(false);
+		autoUpdate.setEnabled(false);
+	}
+	
+	public void enableControls() {
+		sendDataBtn.setEnabled(true);
+		fetchDataBtn.setEnabled(true);
+		autoUpdate.setEnabled(true);
 	}
 }

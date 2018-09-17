@@ -1,5 +1,8 @@
 package delScoresToVmix;
 
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 public class BackgroundWorker extends Thread {
 
 	Controller controller;
@@ -13,11 +16,11 @@ public class BackgroundWorker extends Thread {
 	public void run() {
 		while(true) {
 			try {
-				Thread.sleep(10000L);
+				Thread.sleep(TimeUnit.SECONDS.toMillis(view.getAutoUpdateInterval()));
 				controller.getData();
-				//controller.sendData();
-			} catch (InterruptedException e) {
-				//GUI.setStatus("automatischer Upload deaktiviert");
+				controller.sendData();
+			} catch (InterruptedException | IOException e) {
+				//view.writeLogMessage("FAIL");
 				break;
 			}
 		}
