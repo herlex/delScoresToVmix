@@ -1,6 +1,7 @@
 package delScoresToVmix;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundWorker extends Thread {
@@ -16,12 +17,12 @@ public class BackgroundWorker extends Thread {
     public void run() {
         while(true) {
             try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(view.getAutoUpdateInterval()));
+            	int timeOut = view.getAutoUpdateInterval();
+                Thread.sleep(TimeUnit.SECONDS.toMillis(timeOut));
                 controller.getData();
                 controller.sendData();
             } catch (InterruptedException | IOException e) {
-                //view.writeLogMessage("FAIL");
-                break;
+                view.writeLogMessage("Daten konnten nicht gesendet werden. Laeuft Vmix?");
             }
         }
     }

@@ -6,7 +6,7 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/flashscoreScraper/bin/flashscoreScraper.jar"/>
+	<classpathentry kind="lib" path="/flashscoreScraper/bin/flashscoreScraper.jar" sourcepath="/flashscoreScraper"/>
 	<classpathentry kind="lib" path="/flashscoreScraper/libs/selenium-server-standalone-3.14.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -23,7 +23,7 @@ public class Model {
         
         if(success) {
             inputs = cfg.getInputs();
-            leagueFetcher = new DEL(cfg.getGeckoDriverPath());
+            leagueFetcher = new DEL(cfg.getGeckoDriverPath(), cfg.showBrowser());
             
             isModelReady = true;
         }

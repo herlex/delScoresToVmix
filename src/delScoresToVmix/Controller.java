@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -48,7 +49,7 @@ public class Controller {
         });
     }
     
-    public void sendData() throws IOException {
+    public void sendData() throws IOException, ConnectException {
         if(!model.getUpcomingMatches().isEmpty()) {
             String url = "http://" + view.getVmixIp() + ":" + view.getVmixPort() + "/API/?Function=SetText&Input=%s&SelectedName=%s&Value=%s";
             for(int i = 0; i < 7; ++i) {
@@ -63,7 +64,7 @@ public class Controller {
                         send_url = String.format(url, model.getInput(inputKey), "Gast_1", model.getUpcomingMatches().get(i).scoreAway);
                         send(send_url);
                         
-                        send_url = String.format(url, model.getInput(inputKey), "Zeit_1", model.getUpcomingMatches().get(i).liveTime);
+                        send_url = String.format(url, model.getInput(inputKey), "Zeit_1", model.getUpcomingMatches().get(i).getLiveTime());
                         send(send_url);
                     } else {
                         String send_url = String.format(url, model.getInput(inputKey), "Heim_2", model.getUpcomingMatches().get(i).scoreHome);
@@ -72,7 +73,7 @@ public class Controller {
                         send_url = String.format(url, model.getInput(inputKey), "Gast_2", model.getUpcomingMatches().get(i).scoreAway);
                         send(send_url);
                         
-                        send_url = String.format(url, model.getInput(inputKey), "Zeit_2", model.getUpcomingMatches().get(i).liveTime);
+                        send_url = String.format(url, model.getInput(inputKey), "Zeit_2", model.getUpcomingMatches().get(i).getLiveTime());
                         send(send_url);
                     }
                 }
@@ -95,14 +96,14 @@ public class Controller {
         }
     }
     
-    private void send(String url) throws IOException {
+    private void send(String url) throws IOException, ConnectException {
         url = url.replaceAll(" ", "+");
+        
         URL vmixURL = new URL(url);
-        HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
-        vmixCon.setRequestMethod("GET");
-        vmixCon.connect();
-
-        vmixCon.getResponseCode();
+        
+    	HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
+    	vmixCon.setRequestMethod("GET");
+    	vmixCon.connect();
     }
     
     public void toggleBackgroundWorker(boolean enable) {
