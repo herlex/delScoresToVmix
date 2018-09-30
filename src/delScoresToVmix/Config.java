@@ -42,6 +42,11 @@ public class Config {
                     if(key_value.length == 2) {
                         if(key_value[0].equalsIgnoreCase("geckoDir")) {
                             geckoDriverPath = key_value[1];
+
+                            File geckoDriver = new File(geckoDriverPath);
+                            if(!geckoDriver.exists() || geckoDriver.isDirectory()) { 
+                                return false;
+                            }
                         }
                     }
                 }

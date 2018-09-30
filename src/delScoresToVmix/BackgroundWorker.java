@@ -21,8 +21,18 @@ public class BackgroundWorker extends Thread {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(timeOut));
                 controller.getData();
                 controller.sendData();
+                
+                
             } catch (InterruptedException | IOException e) {
-                view.writeLogMessage("Daten konnten nicht gesendet werden. Laeuft Vmix?");
+                if(e instanceof InterruptedException) {
+                    view.writeLogMessage("Thread interrupted");
+                    break;
+                }
+                else if(e instanceof IOException) {
+                    view.writeLogMessage("Daten konnten nicht gesendet werden. Laeuft Vmix?");
+                }
+                
+                // Nothing to do ...
             }
         }
     }
