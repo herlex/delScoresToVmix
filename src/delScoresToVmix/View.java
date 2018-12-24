@@ -138,10 +138,10 @@ public class View extends JFrame{
     }
     
     public void updateMatchInfo(List<String> matches) {
-        for(int i = 0; i < matchComponents.length; ++i) {
-        	if(matches.get(i).contains("Beendet") || matches.get(i).contains("n.V.")) {
-        		matchComponents[i].setBackground(Color.GREEN);
-        	}
+        for(int i = 0; i < matches.size(); ++i) {
+            if(matches.get(i).contains("Beendet") || matches.get(i).contains("n.V.") || matches.get(i).contains("n.P.")) {
+                matchComponents[i].setBackground(Color.GREEN);
+            }
             matchComponents[i].setText(matches.get(i));
         }
     }

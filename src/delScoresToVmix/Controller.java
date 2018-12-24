@@ -8,6 +8,9 @@ import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+
 public class Controller {
     private Model model;
     private View view;
@@ -17,8 +20,31 @@ public class Controller {
         Controller controller = new Controller();
     }
     
+    private void initModel() {    	
+    	JOptionPane jop = new JOptionPane("loading data...", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null);
+    	JDialog dialog = jop.createDialog(null, "Initialization");
+    	dialog.setModal(true);
+    	dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+    	dialog.pack();
+    	
+
+    	// Set a 2 second timer
+    	new Thread(new Runnable() {
+    		@Override
+    		public void run() {
+    			model = new Model();
+    			dialog.dispose();
+    		}
+
+    	}).start();
+
+    	dialog.setVisible(true);
+    }
+    
     public Controller() {
-        model = new Model();
+    	
+    	initModel();
+        
         view = new View( model );
 
         initView();
@@ -98,12 +124,14 @@ public class Controller {
     
     private void send(String url) throws IOException, ConnectException {
         url = url.replaceAll(" ", "+");
-        
+        view.writeLogMessage(url);
         URL vmixURL = new URL(url);
         
     	HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
     	vmixCon.setRequestMethod("GET");
     	vmixCon.connect();
+    	
+    	int returnCode = vmixCon.getResponseCode();
     }
     
     public void toggleBackgroundWorker(boolean enable) {
