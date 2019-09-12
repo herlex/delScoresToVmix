@@ -61,7 +61,7 @@ public class Controller {
     private void initView() {
         view.setVmixIp("127.0.0.1");
         view.setVmixPort("8088");
-        view.setAutoUpdateInterval(10);
+        view.setAutoUpdateInterval(30);
     }
     
     private void connectListeners() {

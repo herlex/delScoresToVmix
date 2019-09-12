@@ -23,7 +23,7 @@ public class Model {
         
         if(success) {
             inputs = cfg.getInputs();
-            leagueFetcher = new DEL(cfg.getGeckoDriverPath(), cfg.showBrowser());
+            leagueFetcher = new DEL();
             
             isModelReady = true;
         }
@@ -39,9 +39,7 @@ public class Model {
     }
     
     public void shutdown() {
-        if(leagueFetcher != null) {
-            leagueFetcher.finalize();
-        }
+        // Nothing to do...
     }
     
     public boolean fetchUpcomingMatches() {

@@ -10,8 +10,6 @@ public class Config {
     
     private final String configPath = "settings.cfg";
     private Map<String, String> inputs = new HashMap<String, String>();
-    private String geckoDriverPath = "";
-    private boolean showBrowser = true;
     
     public Config() {
         inputs.put("null", "null");
@@ -25,9 +23,7 @@ public class Config {
             sc = new Scanner(configFile);
             while(sc.hasNextLine()) {
                 String newLine = sc.nextLine();
-                if(newLine.equalsIgnoreCase("[INPUTS]") ||
-                	newLine.equalsIgnoreCase("[Paths]") ||
-                	newLine.equalsIgnoreCase("[MISC]")) {
+                if(newLine.equalsIgnoreCase("[INPUTS]")) {
                     category = newLine;
                     continue;
                 }
@@ -36,25 +32,6 @@ public class Config {
                 if(category.equalsIgnoreCase("[INPUTS]")) {
                     if(key_value.length == 2) {
                         inputs.put(key_value[0], key_value[1]);
-                    }
-                }
-                else if(category.equalsIgnoreCase("[PATHS]")) {
-                    if(key_value.length == 2) {
-                        if(key_value[0].equalsIgnoreCase("geckoDir")) {
-                            geckoDriverPath = key_value[1];
-
-                            File geckoDriver = new File(geckoDriverPath);
-                            if(!geckoDriver.exists() || geckoDriver.isDirectory()) { 
-                                return false;
-                            }
-                        }
-                    }
-                }
-                else if(category.equalsIgnoreCase("[Misc]")) {
-                    if(key_value.length == 2) {
-                        if(key_value[0].equalsIgnoreCase("showBrowser")) {
-                            showBrowser = stringToBool(key_value[1]);
-                        }
                     }
                 }
             }
@@ -68,21 +45,5 @@ public class Config {
     
     public Map<String, String> getInputs() {
         return inputs;
-    }
-    
-    public String getGeckoDriverPath() {
-        return geckoDriverPath;
-    }
-    
-    public boolean showBrowser() {
-    	return showBrowser;
-    }
-    
-    private boolean stringToBool(String s) {
-    	if(s.equalsIgnoreCase("true")) {
-    		return true;
-    	}
-    	
-    	return false;
     }
 }

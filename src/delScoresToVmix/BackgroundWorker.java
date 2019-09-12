@@ -25,7 +25,7 @@ public class BackgroundWorker extends Thread {
                 
             } catch (InterruptedException | IOException e) {
                 if(e instanceof InterruptedException) {
-                    view.writeLogMessage("Thread interrupted");
+                    //view.writeLogMessage("Thread interrupted");
                     break;
                 }
                 else if(e instanceof IOException) {
