@@ -1,7 +1,6 @@
 package delScoresToVmix;
 
 import java.io.IOException;
-import java.net.ConnectException;
 import java.util.concurrent.TimeUnit;
 
 public class BackgroundWorker extends Thread {

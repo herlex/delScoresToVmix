@@ -26,7 +26,12 @@ import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
 public class View extends JFrame{
-    private Model model;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private Model model;
     
     private JTextField vmixIp                             = new JTextField();
     private JTextField vmixPort                         = new JTextField();
@@ -141,6 +146,8 @@ public class View extends JFrame{
         for(int i = 0; i < matches.size(); ++i) {
             if(matches.get(i).contains("Beendet") || matches.get(i).contains("n.V.") || matches.get(i).contains("n.P.")) {
                 matchComponents[i].setBackground(Color.GREEN);
+            } else if(matches.get(i).contains("LIVE")) {
+            	matchComponents[i].setBackground(Color.YELLOW);
             }
             matchComponents[i].setText(matches.get(i));
         }
