@@ -17,7 +17,7 @@ public class Controller {
     private BackgroundWorker worker;
     
     public static void main(String[] args) {
-        Controller controller = new Controller();
+        new Controller();
     }
     
     private void initModel() {    	
@@ -124,14 +124,14 @@ public class Controller {
     
     private void send(String url) throws IOException, ConnectException {
         url = url.replaceAll(" ", "+");
-        view.writeLogMessage(url);
+        //view.writeLogMessage(url);
         URL vmixURL = new URL(url);
         
     	HttpURLConnection vmixCon = (HttpURLConnection) vmixURL.openConnection();
     	vmixCon.setRequestMethod("GET");
     	vmixCon.connect();
     	
-    	int returnCode = vmixCon.getResponseCode();
+    	/*int returnCode =*/ vmixCon.getResponseCode();
     }
     
     public void toggleBackgroundWorker(boolean enable) {

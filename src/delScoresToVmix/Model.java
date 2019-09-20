@@ -23,7 +23,7 @@ public class Model {
         
         if(success) {
             inputs = cfg.getInputs();
-            leagueFetcher = new DEL();
+            leagueFetcher = new DEL(cfg.getUrl(), cfg.getLeague());
             
             isModelReady = true;
         }
