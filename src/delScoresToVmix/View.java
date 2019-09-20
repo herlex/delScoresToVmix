@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -44,6 +45,8 @@ public class View extends JFrame{
     private JTextArea logView = new JTextArea(5, 50);
     
     public View(Model model) {
+    	setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/score.png")));
+    	
         this.model = model;
         
         initMainWindow();
