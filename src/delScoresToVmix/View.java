@@ -34,14 +34,16 @@ public class View extends JFrame{
 
 	private Model model;
     
-    private JTextField vmixIp                             = new JTextField();
+	private JTextField vmixIp                           = new JTextField();
     private JTextField vmixPort                         = new JTextField();
-    private JSpinner vmixAutoUpdateInterval                = new JSpinner();
-    private final JLabel vmixIpLabel                     = new JLabel("VMix IP:");
-    private final JLabel vmixPortLabel                     = new JLabel("VMix Port:");
-    private final JLabel vmixAutoUpdateIntervalLabel     = new JLabel("AutoUpdate Interval (sec):");
-    private final JButton fetchDataBtn                     = new JButton("Daten abrufen");
-    private final JButton sendDataBtn                     = new JButton("Daten senden");
+    private JSpinner vmixAutoUpdateInterval             = new JSpinner();
+    private JSpinner gameDay                         	= new JSpinner();
+    private final JLabel vmixIpLabel                    = new JLabel("VMix IP:");
+    private final JLabel vmixPortLabel                  = new JLabel("VMix Port:");
+    private final JLabel vmixAutoUpdateIntervalLabel    = new JLabel("AutoUpdate Interval (sec):");
+    private final JLabel gameDayLabel					= new JLabel("Spieltag");
+    private final JButton fetchDataBtn                  = new JButton("Daten abrufen");
+    private final JButton sendDataBtn                   = new JButton("Daten senden");
     private JCheckBox autoUpdate                        = new JCheckBox("Auto Update");
     
     private JTextArea[] matchComponents = new JTextArea[7];
@@ -50,7 +52,7 @@ public class View extends JFrame{
     private JTextArea logView = new JTextArea(5, 50);
     
     public View(Model model) {
-    	setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/score.png")));
+    	//setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/score.png")));
     	
         this.model = model;
         
@@ -78,6 +80,11 @@ public class View extends JFrame{
         JSpinner.DefaultEditor spinnerEditor = (JSpinner.DefaultEditor)vmixAutoUpdateInterval.getEditor();
         spinnerEditor.getTextField().setHorizontalAlignment(JTextField.LEFT);
         
+        SpinnerModel gameDayModel = new SpinnerNumberModel(1, 1, 52, 1);
+        gameDay.setModel(gameDayModel);
+        JSpinner.DefaultEditor gameDaySpinnerEditor = (JSpinner.DefaultEditor)gameDay.getEditor();
+        gameDaySpinnerEditor.getTextField().setHorizontalAlignment(JTextField.LEFT);
+        
         for(int i = 0; i < matchComponents.length; ++i) {
             matchComponents[i] = new JTextArea();
             matchComponents[i].setEditable(false);
@@ -103,6 +110,8 @@ public class View extends JFrame{
         settings.add(vmixPort);
         settings.add(vmixAutoUpdateIntervalLabel);
         settings.add(vmixAutoUpdateInterval);
+        settings.add(gameDayLabel);
+        settings.add(gameDay);
         settings.add(fetchDataBtn);
         settings.add(sendDataBtn);
         settings.add(autoUpdate);
@@ -147,9 +156,13 @@ public class View extends JFrame{
     
     public void updateMatchInfo(List<String> matches) {
         for(int i = 0; i < matches.size(); ++i) {
-            if(matches.get(i).contains("Beendet") || matches.get(i).contains("n.V.") || matches.get(i).contains("n.P.")) {
+            if(matches.get(i).contains("Fulltime") || matches.get(i).contains("n.")) {
                 matchComponents[i].setBackground(Color.GREEN);
-            } else if(matches.get(i).contains("LIVE")) {
+            } else if(matches.get(i).contains("vor dem Spiel")){
+            	matchComponents[i].setBackground(Color.RED);
+            }
+            else
+            {
             	matchComponents[i].setBackground(Color.YELLOW);
             }
             matchComponents[i].setText(matches.get(i));
@@ -168,6 +181,10 @@ public class View extends JFrame{
         vmixPort.setText(text);
     }
     
+    public void setGameDay(int day) {
+        gameDay.setValue(day);
+    }
+    
     public void setAutoUpdateInterval(int interval) {
         vmixAutoUpdateInterval.setValue(interval);
     }
@@ -178,6 +195,10 @@ public class View extends JFrame{
     
     public String getVmixPort() {
         return vmixPort.getText();
+    }
+    
+    public int getGameDay() {
+        return (int) gameDay.getValue();
     }
     
     public int getAutoUpdateInterval() {

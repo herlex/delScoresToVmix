@@ -13,8 +13,6 @@ public class Config {
     
     private final String configPath = "settings.cfg";
     private Map<String, String> inputs = new HashMap<String, String>();
-    private String url = "http://m.flashscore.de/eishockey/";
-    private String league = "DEUTSCHLAND: DEL";
     
     public Config() {
         inputs.put("null", "null");
@@ -28,7 +26,7 @@ public class Config {
             sc = new Scanner(configFile);
             while(sc.hasNextLine()) {
                 String newLine = sc.nextLine();
-                if(newLine.equalsIgnoreCase("[INPUTS]") || newLine.equalsIgnoreCase("[MISC]")) {
+                if(newLine.equalsIgnoreCase("[INPUTS]")) {
                     category = newLine;
                     continue;
                 }
@@ -38,12 +36,6 @@ public class Config {
                     if(key_value.length == 2) {
                         inputs.put(key_value[0], key_value[1]);
                     }
-                } else if(category.equalsIgnoreCase("[MISC]")) {
-                	if(key_value[0].equalsIgnoreCase("url")) {
-                		url = key_value[1];
-                	} else if(key_value[0].equalsIgnoreCase("league")) {
-                		league = key_value[1];
-                	}
                 }
             }
             sc.close();
@@ -62,9 +54,6 @@ public class Config {
 				
 				BufferedWriter writer = new BufferedWriter(new FileWriter(configPath));
 			    writer.write("[INPUTS]\n");
-			    writer.write("[MISC]\n");
-			    writer.write("url=" + url + "\n");
-			    writer.write("league=" + league);
 			    writer.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -76,13 +65,5 @@ public class Config {
     
     public Map<String, String> getInputs() {
         return inputs;
-    }
-    
-    public String getUrl() {
-    	return url;
-    }
-    
-    public String getLeague() {
-    	return league;
     }
 }

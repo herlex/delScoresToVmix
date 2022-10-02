@@ -42,7 +42,6 @@ public class Controller {
     }
     
     public Controller() {
-    	
     	initModel();
         
         view = new View( model );
@@ -90,7 +89,7 @@ public class Controller {
                         send_url = String.format(url, model.getInput(inputKey), "Gast_1", model.getUpcomingMatches().get(i).scoreAway);
                         send(send_url);
                         
-                        send_url = String.format(url, model.getInput(inputKey), "Zeit_1", model.getUpcomingMatches().get(i).getLiveTime());
+                        send_url = String.format(url, model.getInput(inputKey), "Zeit_1", model.getUpcomingMatches().get(i).actualTime);
                         send(send_url);
                     } else {
                         String send_url = String.format(url, model.getInput(inputKey), "Heim_2", model.getUpcomingMatches().get(i).scoreHome);
@@ -99,7 +98,7 @@ public class Controller {
                         send_url = String.format(url, model.getInput(inputKey), "Gast_2", model.getUpcomingMatches().get(i).scoreAway);
                         send(send_url);
                         
-                        send_url = String.format(url, model.getInput(inputKey), "Zeit_2", model.getUpcomingMatches().get(i).getLiveTime());
+                        send_url = String.format(url, model.getInput(inputKey), "Zeit_2", model.getUpcomingMatches().get(i).actualTime);
                         send(send_url);
                     }
                 }
@@ -113,7 +112,7 @@ public class Controller {
     }
     
     public void getData() {
-        boolean success = model.fetchUpcomingMatches();
+        boolean success = model.fetchUpcomingMatches(Long.valueOf(view.getGameDay()));
         if(success) {
             view.updateMatchInfo(model.getUpcomingMatchesAsString());
             view.writeLogMessage("Daten abgerufen");
